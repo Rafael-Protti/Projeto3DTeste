@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class HUDManager : MonoBehaviour
@@ -7,7 +8,7 @@ public class HUDManager : MonoBehaviour
 
     public static HUDManager instancia;
 
-    private void Awake()
+    void Awake()
     {
         if (instancia == null)
         {
@@ -20,19 +21,20 @@ public class HUDManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    void Start()
-    {
 
+    void OnEnable() //Acontece sempre que o script é ligado. Se ele for desligado e ligado novamente, o código rodará mais uma vez.
+    {
+        Character.OnHealthChange += AtualizarVida;
     }
 
-    void Update()
+    void OnDisable()
     {
-
+        Character.OnHealthChange -= AtualizarVida;
     }
 
-    public void AtualizarVida(float health)
+    public void AtualizarVida()
     {
-        int textHealth = Mathf.FloorToInt(health);
+        int textHealth = Mathf.FloorToInt(Character.instancia.health);
         valorVida.text = textHealth.ToString();
     }
 }

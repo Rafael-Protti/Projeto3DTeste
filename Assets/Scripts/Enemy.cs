@@ -6,21 +6,46 @@ public class Enemy : MonoBehaviour
     public float maxHealth = 100;
     public float health;
     public float damage = 9.66666666666666666666666666666666666666f;
+
+    Transform player;
+
+    void OnEnable()
+    {
+        Character.OnHealthChange += Taunt;
+        Character.OnDeath += Die;
+    }
+
+    void OnDisable()
+    {
+        Character.OnHealthChange -= Taunt;
+        Character.OnDeath -= Die;
+    }
     void Start()
     {
         health = maxHealth;
+        player = GameObject.FindWithTag("Player").transform;
     }
 
-    void Update()
+    void Taunt()
     {
-        
+        Debug.Log("hi hi levei vantagi");
+    }
+
+    void Die()
+    {
+        Debug.Log("GameOver");
+        Destroy(gameObject);
+    }
+    public void ApplyDamage()
+    {
+        Character.instancia.TakeDamage(damage);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.transform == player)
         {
-            Character.instancia.TakeDamage(damage);
+            ApplyDamage();
         }
     }
 }

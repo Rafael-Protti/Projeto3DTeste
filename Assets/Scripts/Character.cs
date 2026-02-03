@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
@@ -6,9 +7,12 @@ public class Character : MonoBehaviour
     public float maxHealth { get; private set; } = 100;
     public float health { get; private set; }
 
+    public static event Action OnHealthChange;
+    public static event Action OnDeath;
+
     public static Character instancia;
 
-    private void Awake()
+    void Awake()
     {
         if (instancia == null)
         {
@@ -22,7 +26,7 @@ public class Character : MonoBehaviour
         }
     }
 
-    private void Start()
+    void Start()
     {
         health = maxHealth;
     }
@@ -35,7 +39,14 @@ public class Character : MonoBehaviour
     public void Die()
     {
         health = 0;
+        OnDeath?.Invoke();
+        ChangeCamera();
         Destroy(gameObject);
+    }
+
+    void ChangeCamera()
+    {
+        GameObject.Find("Camera2").GetComponent<Camera>().enabled = true;
     }
 
     public void ChangeHealth(float value)
@@ -52,7 +63,7 @@ public class Character : MonoBehaviour
             health = maxHealth;
         }
 
-        HUDManager.instancia.AtualizarVida(health);
+        OnHealthChange?.Invoke();
     }
 
     public void IncreaseValue(float value)
@@ -67,7 +78,7 @@ public class Character : MonoBehaviour
             health += value;
         }
 
-        HUDManager.instancia.AtualizarVida(health);
+        OnHealthChange?.Invoke();
     }
 
     public void DecreaseValue(float value)
@@ -79,6 +90,7 @@ public class Character : MonoBehaviour
             Die();
         }
 
-        HUDManager.instancia.AtualizarVida(health);
+        OnHealthChange?.Invoke();
+
     }
 }
