@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.Networking;
 using static System.Net.WebRequestMethods;
+using static UnityEditor.PlayerSettings;
 
 public class Ranking : MonoBehaviour
 {
@@ -13,18 +14,25 @@ public class Ranking : MonoBehaviour
     [System.Serializable]
     public class DadosRanking
     {
+        //public int id;
+        public string nome;
+        public float tempo;
+        //public string criado_em;
+    }
+
+    [System.Serializable]
+    public class DadosRankingFetch
+    {
         public int id;
         public string nome;
         public float tempo;
         public string criado_em;
     }
 
-    private void Update()
+    [System.Serializable]
+    public class DadosRankingList
     {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            Inserir("Teste", 10.01f);
-        }
+        public DadosRankingFetch[] items;
     }
 
     public void Inserir(string nome, float tempo)
@@ -56,6 +64,33 @@ public class Ranking : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 Debug.Log("Dados salvos com sucesso");
+            }
+
+            else
+            {
+                Debug.Log("Erro ao salvar no banco: " + request.error);
+                Debug.Log("Detalhes do erro: " + request.downloadHandler.text);
+            }
+        }
+    }
+
+    public IEnumerator Buscar(System.Action<DadosRankingList> callback)
+    {
+
+        using (UnityWebRequest request = UnityWebRequest.Get(supabaseUrl))
+        {
+            request.SetRequestHeader("apikey", supabaseKey);
+            request.SetRequestHeader("Authorization", "Bearer " + supabaseKey);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                //Debug.Log(request.downloadHandler.text);
+                string json = "{ \"items\":" + request.downloadHandler.text + "}";
+                DadosRankingList dados = JsonUtility.FromJson<DadosRankingList>(json);
+
+                callback(dados);
             }
 
             else

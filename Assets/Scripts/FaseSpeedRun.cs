@@ -7,6 +7,7 @@ public class FaseSpeedRun : MonoBehaviour
 
     float temporizador;
     bool iniciouCorrida = false;
+    string nome;
 
     public Transform paredeInicio;
     public Transform paredeFinal;
@@ -34,5 +35,9 @@ public class FaseSpeedRun : MonoBehaviour
     public void FinalizarCorrida()
     {
         iniciouCorrida = false;
+
+        nome = PlayerPrefs.GetString("nome", "Gustavo");
+        Debug.Log(nome);
+        GetComponent<Ranking>().Inserir(nome, temporizador);
     }
 }
